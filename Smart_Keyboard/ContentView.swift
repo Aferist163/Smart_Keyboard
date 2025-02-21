@@ -13,29 +13,44 @@ struct ContentView: View {
         URLSession.shared.dataTask(with: url).resume()
     }
     
+    let colors: [(name: String, value: String, color: Color)] = [
+        ("Синий", "blue", .blue),
+        ("Красный", "red", .red),
+        ("Зелёный", "green", .green),
+        ("Жёлтый", "yellow", .yellow)
+    ]
+    
     var body: some View {
-        VStack(spacing: 20) {
-            Button(action: { changeColor(color: "blue") }) {
-                Text("Синий")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(width: 200)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
+        ZStack {
+            Color.white // Белый фон
+                .ignoresSafeArea() // Чтобы фон был на весь экран
             
-            Button(action: { changeColor(color: "red") }) {
-                Text("Красный")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(width: 200)
-                    .background(Color.red)
+            Grid(horizontalSpacing: 20, verticalSpacing: 20) {
+                GridRow {
+                    colorButton(name: colors[0].name, value: colors[0].value, color: colors[0].color)
+                    colorButton(name: colors[1].name, value: colors[1].value, color: colors[1].color)
+                }
+                GridRow {
+                    colorButton(name: colors[2].name, value: colors[2].value, color: colors[2].color)
+                    colorButton(name: colors[3].name, value: colors[3].value, color: colors[3].color)
+                }
+            }
+            .padding()
+        }
+    }
+    
+    func colorButton(name: String, value: String, color: Color) -> some View {
+        VStack {
+            Button(action: { changeColor(color: value) }) {
+                Rectangle()
+                    .fill(color)
+                    .frame(width: 100, height: 100)
                     .cornerRadius(10)
             }
+            Text(name)
+                .font(.headline)
+                .foregroundColor(.black)
         }
-        .padding()
     }
 }
 
