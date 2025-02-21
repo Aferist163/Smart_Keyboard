@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     func changeColor(color: String) {
-        guard let url = URL(string: "http://192.168.1.100:5000/color?value=\(color)") else { return }
+        guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)") else { return }
         URLSession.shared.dataTask(with: url).resume()
     }
     
