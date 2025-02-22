@@ -41,7 +41,7 @@ struct ContentView: View {
             ZStack {
                 
                 LinearGradient(
-                    gradient: Gradient(colors: [Color(#colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2823529412, alpha: 1)),Color(#colorLiteral(red: 0.5810448232, green: 0.2790705338, blue: 0.3034937086, alpha: 0.4392332368))]),
+                    gradient: Gradient(colors: [Color(#colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2823529412, alpha: 1)),Color(#colorLiteral(red: 0.3485834912, green: 0.1700546396, blue: 0.1863969462, alpha: 1))]),
                     startPoint: .top,
                     endPoint: .bottom
                 )
