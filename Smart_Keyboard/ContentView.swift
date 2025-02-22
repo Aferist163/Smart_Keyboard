@@ -70,7 +70,7 @@ struct ContentView: View {
             }
             .cornerRadius(30)
             .frame(width: 336, height: 249)
-            .shadow(color: .black, radius: 2, x: 0, y: 4)
+            .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 2, x: 0, y: 6)
         }
     }
     
