@@ -75,6 +75,8 @@ struct ContentView: View {
     }
     
     func sendColorAndSliderValueRequest(color: String, sliderValue: Double) {
+        
+       
         let sliderValueString = String(format: "%.0f", sliderValue)
         
         guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)") else {
@@ -86,11 +88,17 @@ struct ContentView: View {
     
     // Функция для изменения яркости
     func sliderValueChanged() {
+        if !isSwitchOn {
+               return
+           }
         sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue)
     }
     
     // Функция для изменения цвета
     func changeColor(color: String) {
+        if !isSwitchOn {
+               return
+           }
         selectedColor = color
         sendColorAndSliderValueRequest(color: color, sliderValue: sliderValue)
     }
