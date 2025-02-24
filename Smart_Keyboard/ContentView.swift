@@ -11,7 +11,9 @@ struct ContentView: View {
     
     @State private var isSwitchOn = true
     @State private var currentColor: Color = .white
+    @State private var selectedColor: String = "white"
     @State private var sliderValue: Double = 100.0
+    
 
     let colors: [(value: String, color: Color)] = [
             ("red", Color(#colorLiteral(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0))),
@@ -59,7 +61,7 @@ struct ContentView: View {
         }
     }
 
-    func colorButton( value: String, color: Color) -> some View {
+    func colorButton(value: String, color: Color) -> some View {
         VStack {
             Button(action: { changeColor(color: value) }) {
                 Rectangle()
@@ -70,18 +72,28 @@ struct ContentView: View {
         }
     }
     
-    func changeColor(color: String) {
-            
-            if !isSwitchOn {
-                return
-            }
-            
-            currentColor = getColor(from: color)
+    func sendColorAndSliderValueRequest(color: String, sliderValue: Double) {
+        let sliderValueString = String(format: "%.0f", sliderValue)
         
-            guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)") else { return }
-            URLSession.shared.dataTask(with: url).resume()
+        guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)") else {
+            return
         }
-
+        
+        URLSession.shared.dataTask(with: url).resume()
+    }
+    
+    // Функция для изменения яркости
+    func sliderValueChanged() {
+        sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue)
+    }
+    
+    // Функция для изменения цвета
+    func changeColor(color: String) {
+        selectedColor = color
+        currentColor = getColor(from: color)
+        sendColorAndSliderValueRequest(color: color, sliderValue: sliderValue)
+    }
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -139,6 +151,9 @@ struct ContentView: View {
                             
                             Slider(value: $sliderValue, in: 0...100, step: 1)
                                 .padding(.trailing, 25)
+                                .onChange(of: sliderValue) { newValue in
+                                    sliderValueChanged()
+                                }
                         }
                         .padding(.bottom, 20)
                     }
