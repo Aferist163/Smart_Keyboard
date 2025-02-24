@@ -9,8 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var isSwitchOn = false
-    @State private var currentColor: Color = .black
+    @State private var isSwitchOn = true
+    @State private var currentColor: Color = .white
     @State private var sliderValue: Double = 100.0
 
     let colors: [(value: String, color: Color)] = [
