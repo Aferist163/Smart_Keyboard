@@ -8,17 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
-    func changeColor(color: String) {
-            
-            if !isSwitchOn {
-                return
-            }
-            
-            guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)") else { return }
-            URLSession.shared.dataTask(with: url).resume()
-        }
     
     @State private var isSwitchOn = false
+    @State private var currentColor: Color = .black
     @State private var sliderValue: Double = 100.0
 
     let colors: [(value: String, color: Color)] = [
@@ -36,6 +28,59 @@ struct ContentView: View {
             ("pink_red", Color(#colorLiteral(red: 1, green: 0, blue: 0.5411865382, alpha: 1)))
         ]
     
+    func getColor(from colorString: String) -> Color {
+        switch colorString {
+        case "red":
+            return Color(#colorLiteral(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0))
+        case "orange":
+            return Color(#colorLiteral(red: 1, green: 0.4873002615, blue: 0.001315790044, alpha: 1))
+        case "yellow":
+            return Color(#colorLiteral(red: 1.0, green: 1.0, blue: 0.0, alpha: 1.0))
+        case "light green":
+            return Color(#colorLiteral(red: 0.7590737098, green: 1, blue: 0.1726049846, alpha: 1))
+        case "blue":
+            return Color(#colorLiteral(red: 0, green: 0.01396386574, blue: 1, alpha: 1))
+        case "light blue":
+            return Color(#colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1))
+        case "blue_lighGreen":
+            return Color(#colorLiteral(red: 0, green: 1, blue: 0.6773500971, alpha: 1))
+        case "green":
+            return Color(#colorLiteral(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0))
+        case "purple":
+            return Color(#colorLiteral(red: 0.4877579828, green: 0, blue: 1, alpha: 1))
+        case "purple_pink":
+            return Color(#colorLiteral(red: 0.7841505162, green: 0, blue: 1, alpha: 1))
+        case "pink":
+            return Color(#colorLiteral(red: 1, green: 0, blue: 0.9317503674, alpha: 1))
+        case "pink_red":
+            return Color(#colorLiteral(red: 1, green: 0, blue: 0.5411865382, alpha: 1))
+        default:
+            return .black
+        }
+    }
+
+    func colorButton( value: String, color: Color) -> some View {
+        VStack {
+            Button(action: { changeColor(color: value) }) {
+                Rectangle()
+                    .fill(color)
+                    .frame(width: 75, height: 75)
+                    .cornerRadius(20)
+            }
+        }
+    }
+    
+    func changeColor(color: String) {
+            
+            if !isSwitchOn {
+                return
+            }
+            
+            currentColor = getColor(from: color)
+        
+            guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)") else { return }
+            URLSession.shared.dataTask(with: url).resume()
+        }
 
     var body: some View {
         ZStack {
@@ -76,6 +121,7 @@ struct ContentView: View {
                                 .padding(.trailing, 20)
                                 .onChange(of: isSwitchOn) { newValue in
                                     changeColor(color: newValue ? "white" : "black")
+                                    currentColor = newValue ? .white : .black
                                 }
                         }
                         .frame(maxWidth: .infinity)
@@ -100,10 +146,35 @@ struct ContentView: View {
                 .frame(height: 250)
                 .cornerRadius(60)
                 .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 20, x: 0, y: 8)
-
-
+                
                 Spacer()
+                
+                HStack {
+                    ZStack {
+                        Image("key")
+                            .resizable()
+                            .frame(width: 136, height: 119)
+                            .padding(.leading, 70)
+                            .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 20, x: 0, y: 8)
+                        
+                        Rectangle()
+                            .fill(currentColor)
+                            .frame(width: 50, height: 50)
+                            .padding(.leading, 35)
+                            .padding(.bottom, 45)
+                             
+                        Image("key")
+                            .resizable()
+                            .frame(width: 136, height: 119)
+                            .padding(.leading, 70)
+                    }
 
+                    Spacer()
+                }
+
+                
+                Spacer()
+               
                 ZStack {
                     LinearGradient(
                         gradient: Gradient(colors: [Color(#colorLiteral(red: 0.2823529412, green: 0.2823529412, blue: 0.2823529412, alpha: 1)), Color(#colorLiteral(red: 0.3485834912, green: 0.1700546396, blue: 0.1863969462, alpha: 1))]),
@@ -130,26 +201,14 @@ struct ContentView: View {
                             colorButton(value: colors[11].value, color: colors[11].color)
                         }
                     }
-                    .padding(12)
                 }
                 .cornerRadius(30)
-                .padding(.bottom, 70)
-                .frame(width: 336, height: 249)
+                .frame(width: 336 + 24, height: 249 + 24)
                 .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 2, x: 0, y: 6)
             }
-        }.ignoresSafeArea()
-    }
-
-    
-    func colorButton( value: String, color: Color) -> some View {
-        VStack {
-            Button(action: { changeColor(color: value) }) {
-                Rectangle()
-                    .fill(color)
-                    .frame(width: 75, height: 75)
-                    .cornerRadius(20)
-            }
+            .padding(.bottom, 24)
         }
+        .ignoresSafeArea()
     }
 }
 
