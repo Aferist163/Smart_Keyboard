@@ -10,10 +10,8 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var isSwitchOn = true
-    @State private var currentColor: Color = .white
     @State private var selectedColor: String = "white"
     @State private var sliderValue: Double = 100.0
-    
 
     let colors: [(value: String, color: Color)] = [
             ("red", Color(#colorLiteral(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0))),
@@ -56,8 +54,12 @@ struct ContentView: View {
             return Color(#colorLiteral(red: 1, green: 0, blue: 0.9317503674, alpha: 1))
         case "pink_red":
             return Color(#colorLiteral(red: 1, green: 0, blue: 0.5411865382, alpha: 1))
+        case "white":
+            return Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1))
+        case "black":
+            return Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1))
         default:
-            return .black
+            return .white
         }
     }
 
@@ -90,7 +92,6 @@ struct ContentView: View {
     // Функция для изменения цвета
     func changeColor(color: String) {
         selectedColor = color
-        currentColor = getColor(from: color)
         sendColorAndSliderValueRequest(color: color, sliderValue: sliderValue)
     }
     
@@ -133,7 +134,7 @@ struct ContentView: View {
                                 .padding(.trailing, 20)
                                 .onChange(of: isSwitchOn) { newValue in
                                     changeColor(color: newValue ? "white" : "black")
-                                    currentColor = newValue ? .white : .black
+                                    selectedColor = newValue ? "white" : "black"
                                 }
                         }
                         .frame(maxWidth: .infinity)
@@ -173,11 +174,11 @@ struct ContentView: View {
                             .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 20, x: 0, y: 8)
                         
                         Rectangle()
-                            .fill(currentColor)
+                            .fill(getColor(from: selectedColor))
                             .frame(width: 50, height: 50)
                             .padding(.leading, 35)
                             .padding(.bottom, 45)
-                             
+
                         Image("key")
                             .resizable()
                             .frame(width: 136, height: 119)
