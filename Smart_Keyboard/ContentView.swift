@@ -9,17 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
     func changeColor(color: String) {
-        if !isSwitchOn {
-            guard let url = URL(string: "http://192.168.0.166:5000/color?value=black") else { return }
-            URLSession.shared.dataTask(with: url).resume()
-        } else {
+            
+            if !isSwitchOn {
+                return
+            }
+            
             guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)") else { return }
             URLSession.shared.dataTask(with: url).resume()
         }
-    }
     
     @State private var isSwitchOn = false
-    @State private var sliderValue: Double = 50.0
+    @State private var sliderValue: Double = 100.0
 
     let colors: [(value: String, color: Color)] = [
             ("red", Color(#colorLiteral(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0))),
@@ -71,17 +71,12 @@ struct ContentView: View {
                             Spacer()
                             
                             Toggle("", isOn: $isSwitchOn)
-                                    .labelsHidden()
-                                    .padding(.leading, 20)
-                                    .padding(.trailing, 20)
-                                    .onChange(of: isSwitchOn) { newValue in
-                                        if newValue {
-                                            changeColor(color: "white")
-                                        } else {
-                                            changeColor(color: "black")
-                                        }
-                                    }
-
+                                .labelsHidden()
+                                .padding(.leading, 20)
+                                .padding(.trailing, 20)
+                                .onChange(of: isSwitchOn) { newValue in
+                                    changeColor(color: newValue ? "white" : "black")
+                                }
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, 90)
