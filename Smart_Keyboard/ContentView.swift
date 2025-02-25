@@ -86,6 +86,10 @@ struct ContentView: View {
         URLSession.shared.dataTask(with: url).resume()
     }
     
+    func switchBlack(color: String) {
+        sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue)
+    }
+    
     // Функция для изменения яркости
     func sliderValueChanged() {
         if !isSwitchOn {
@@ -141,9 +145,10 @@ struct ContentView: View {
                                 .padding(.leading, 20)
                                 .padding(.trailing, 20)
                                 .onChange(of: isSwitchOn) { newValue in
-                                    changeColor(color: newValue ? "white" : "black")
                                     selectedColor = newValue ? "white" : "black"
+                                    switchBlack(color: selectedColor)
                                 }
+
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, 90)
