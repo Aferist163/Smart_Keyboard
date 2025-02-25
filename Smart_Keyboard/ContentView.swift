@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var isSwitchOn = true
     @State private var selectedColor: String = "white"
     @State private var sliderValue: Double = 100.0
+    @State private var sliderValueWhite: Double = 100.0
 
     let colors: [(value: String, color: Color)] = [
             ("red", Color(#colorLiteral(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0))),
@@ -148,7 +149,7 @@ struct ContentView: View {
                                     selectedColor = newValue ? "white" : "black"
                                     switchBlack(color: selectedColor)
                                 }
-
+                            
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, 90)
@@ -179,6 +180,7 @@ struct ContentView: View {
                 Spacer()
                 
                 HStack {
+                    
                     ZStack {
                         Image("key")
                             .resizable()
@@ -191,16 +193,38 @@ struct ContentView: View {
                             .frame(width: 50, height: 50)
                             .padding(.leading, 35)
                             .padding(.bottom, 45)
-
+                        
                         Image("key")
                             .resizable()
                             .frame(width: 136, height: 119)
                             .padding(.leading, 70)
                     }
-
                     Spacer()
-                }
+                    
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(LinearGradient(gradient: Gradient(colors:
+                            [ Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)),(getColor(from: selectedColor)),]),
+                            startPoint: .top,
+                            endPoint: .bottom))
+                            .frame(width: 50, height: 260)
 
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white.opacity(0.6))
+                            .frame(width: 70, height: 30)
+                            .offset(y: CGFloat(130 - sliderValueWhite * 2.6))
+                            .gesture(DragGesture().onChanged { value in
+                                let newSliderValue = min(max(0, (260 - value.location.y) / 2.6), 100)
+                                sliderValueWhite = newSliderValue
+                            })
+                    }
+                    .frame(width: 50, height: 260)
+                    .padding(.trailing, 40)
+
+            
+                    }
+                    .frame(height: 280)
+                    .padding(16)
                 
                 Spacer()
                
@@ -234,12 +258,12 @@ struct ContentView: View {
                 .cornerRadius(30)
                 .frame(width: 336 + 24, height: 249 + 24)
                 .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 2, x: 0, y: 6)
+                .padding(.bottom, 24)
             }
-            .padding(.bottom, 24)
-        }
-        .ignoresSafeArea()
+        }.ignoresSafeArea()
     }
 }
+    
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
