@@ -11,8 +11,12 @@ struct ContentView: View {
     
     @State private var isSwitchOn = true
     @State private var selectedColor: String = "white"
+    @State private var MemoryColor: String = "white"
     @State private var sliderValue: Double = 100.0
-    @State private var sliderValueWhite: Double = 100.0
+    
+    @State private var sliderOffset: CGFloat = 0
+    @State private var sliderHeight: CGFloat = 260
+    @State private var sliderValueWhite: Int = 100
 
     let colors: [(value: String, color: Color)] = [
             ("red", Color(#colorLiteral(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0))),
@@ -75,12 +79,13 @@ struct ContentView: View {
         }
     }
     
-    func sendColorAndSliderValueRequest(color: String, sliderValue: Double) {
+    func sendColorAndSliderValueRequest(color: String, sliderValue: Double, sliderValueWhite: Int) {
         
        
         let sliderValueString = String(format: "%.0f", sliderValue)
+        let sliderValueWhiteString = String(format: "%.0f", sliderValueWhite)
         
-        guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)") else {
+        guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)&sliderValueWhite=\(sliderValueWhiteString)") else {
             return
         }
         
@@ -88,7 +93,7 @@ struct ContentView: View {
     }
     
     func switchBlack(color: String) {
-        sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue)
+        sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue, sliderValueWhite: sliderValueWhite)
     }
     
     // Функция для изменения яркости
@@ -96,7 +101,7 @@ struct ContentView: View {
         if !isSwitchOn {
                return
            }
-        sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue)
+        sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue, sliderValueWhite: sliderValueWhite)
     }
     
     // Функция для изменения цвета
@@ -105,7 +110,7 @@ struct ContentView: View {
                return
            }
         selectedColor = color
-        sendColorAndSliderValueRequest(color: color, sliderValue: sliderValue)
+        sendColorAndSliderValueRequest(color: color, sliderValue: sliderValue, sliderValueWhite: sliderValueWhite)
     }
     
     var body: some View {
@@ -146,10 +151,15 @@ struct ContentView: View {
                                 .padding(.leading, 20)
                                 .padding(.trailing, 20)
                                 .onChange(of: isSwitchOn) { newValue in
-                                    selectedColor = newValue ? "white" : "black"
-                                    switchBlack(color: selectedColor)
-                                }
-                            
+                                        if newValue {
+                                            selectedColor = MemoryColor
+                                            switchBlack(color: MemoryColor )
+                                        } else {
+                                            switchBlack(color: "black")
+                                            MemoryColor = selectedColor
+                                            selectedColor = "black"
+                                        }
+                                    }
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, 90)
@@ -158,10 +168,11 @@ struct ContentView: View {
                         
                         HStack{
                             Text("\(Int(sliderValue))")
-                                .foregroundColor(.white)
-                                .font(.largeTitle)
-                                .frame(width: 80)
-                                .padding(.leading, 15)
+                                    .foregroundColor(.white)
+                                    .font(.largeTitle)
+                                    .frame(width: 80)
+                                    .padding(.leading, 15)
+                                    .contentTransition(.numericText())
                             Spacer()
                             
                             Slider(value: $sliderValue, in: 0...100, step: 1)
@@ -201,30 +212,51 @@ struct ContentView: View {
                     }
                     Spacer()
                     
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(LinearGradient(gradient: Gradient(colors:
-                            [ Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)),(getColor(from: selectedColor)),]),
-                            startPoint: .top,
-                            endPoint: .bottom))
+                    ZStack(alignment: .bottom) {
+                        Rectangle()
                             .frame(width: 50, height: 260)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)),
+                                        getColor(from: selectedColor)
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
 
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.6))
-                            .frame(width: 70, height: 30)
-                            .offset(y: CGFloat(130 - sliderValueWhite * 2.6))
-                            .gesture(DragGesture().onChanged { value in
-                                let newSliderValue = min(max(0, (260 - value.location.y) / 2.6), 100)
-                                sliderValueWhite = newSliderValue
-                            })
+                        Rectangle().frame(width: 50, height: min(260, max(0, sliderHeight + sliderOffset)))
+                            .foregroundColor( Color(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)).opacity(0.4))
+                            .gesture(
+                                DragGesture()
+                                    .onChanged({value in
+                                        sliderValueChanged()
+                                        withAnimation{
+                                            sliderOffset = -value.translation.height * 1.2
+                                            let newHEIGHT = min(260, max(0, sliderHeight + sliderOffset))
+                                            sliderValueWhite = Int((newHEIGHT / 260) * 100)
+                                        }
+                                    })
+                                    .onEnded({value in
+                                        sliderHeight = min(260, max(10, sliderHeight + sliderOffset))
+                                        sliderOffset = 0
+                                    })
+                            )
                     }
-                    .frame(width: 50, height: 260)
-                    .padding(.trailing, 40)
-
-            
-                    }
-                    .frame(height: 280)
-                    .padding(16)
+                    .clipShape(.rect(cornerRadius: 20))
+                    .padding(.trailing, 5)
+                    .frame(height: 260)
+                    //.overlay{
+                      //  Text("\(sliderValueWhite)")
+                        //    .font(.largeTitle)
+                          //  .foregroundColor(.white)
+                            //.contentTransition(.numericText())
+                    //}
+                    
+                }
+                .frame(height: 280)
+                .padding(16)
                 
                 Spacer()
                
@@ -255,7 +287,7 @@ struct ContentView: View {
                         }
                     }
                 }
-                .cornerRadius(30)
+                .cornerRadius(20)
                 .frame(width: 336 + 24, height: 249 + 24)
                 .shadow(color: Color(#colorLiteral(red: 0.1784051452, green: 0.1784051452, blue: 0.1784051452, alpha: 1)), radius: 2, x: 0, y: 6)
                 .padding(.bottom, 24)
