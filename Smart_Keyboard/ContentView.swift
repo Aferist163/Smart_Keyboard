@@ -80,15 +80,14 @@ struct ContentView: View {
     }
     
     func sendColorAndSliderValueRequest(color: String, sliderValue: Double, sliderValueWhite: Int) {
-        
        
         let sliderValueString = String(format: "%.0f", sliderValue)
         let sliderValueWhiteString = String(format: "%.0f", sliderValueWhite)
         
-        guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)&sliderValueWhite=\(sliderValueWhiteString)") else {
+        guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)&sliderValueWhite=\(sliderValueWhite)") else {
             return
         }
-        
+    
         URLSession.shared.dataTask(with: url).resume()
     }
     
@@ -101,6 +100,7 @@ struct ContentView: View {
         if !isSwitchOn {
                return
            }
+      
         sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue, sliderValueWhite: sliderValueWhite)
     }
     
