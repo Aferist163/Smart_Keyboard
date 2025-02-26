@@ -16,6 +16,7 @@ struct ContentView: View {
     
     @State private var sliderOffset: CGFloat = 0
     @State private var sliderHeight: CGFloat = 260
+    @State private var MemorysliderValueWhite: Int = 100
     @State private var sliderValueWhite: Int = 100
 
     let colors: [(value: String, color: Color)] = [
@@ -82,7 +83,6 @@ struct ContentView: View {
     func sendColorAndSliderValueRequest(color: String, sliderValue: Double, sliderValueWhite: Int) {
        
         let sliderValueString = String(format: "%.0f", sliderValue)
-        let sliderValueWhiteString = String(format: "%.0f", sliderValueWhite)
         
         guard let url = URL(string: "http://192.168.0.166:5000/color?value=\(color)&sliderValue=\(sliderValueString)&sliderValueWhite=\(sliderValueWhite)") else {
             return
@@ -91,7 +91,7 @@ struct ContentView: View {
         URLSession.shared.dataTask(with: url).resume()
     }
     
-    func switchBlack(color: String) {
+    func switchBlack(color: String, whiteBalance: Int) {
         sendColorAndSliderValueRequest(color: selectedColor, sliderValue: sliderValue, sliderValueWhite: sliderValueWhite)
     }
     
@@ -152,12 +152,15 @@ struct ContentView: View {
                                 .padding(.trailing, 20)
                                 .onChange(of: isSwitchOn) { newValue in
                                         if newValue {
+                                            sliderValueWhite = MemorysliderValueWhite
                                             selectedColor = MemoryColor
-                                            switchBlack(color: MemoryColor )
+                                            switchBlack(color: MemoryColor, whiteBalance: sliderValueWhite)
                                         } else {
+                                            MemorysliderValueWhite = sliderValueWhite
                                             MemoryColor = selectedColor
                                             selectedColor = "black"
-                                            switchBlack(color: selectedColor)
+                                            sliderValueWhite = 0
+                                            switchBlack(color: selectedColor, whiteBalance: sliderValueWhite)
                                         }
                                     }
                         }
@@ -231,15 +234,19 @@ struct ContentView: View {
                             .gesture(
                                 DragGesture()
                                     .onChanged({value in
-                                        sliderValueChanged()
-                                        withAnimation{
-                                            sliderOffset = -value.translation.height * 1.2
-                                            let newHEIGHT = min(260, max(0, sliderHeight + sliderOffset))
-                                            sliderValueWhite = Int((newHEIGHT / 260) * 100)
+                                        if isSwitchOn {
+                                            sliderValueChanged()
+                                            withAnimation {
+                                                sliderOffset = -value.translation.height * 1.2
+                                                let newHEIGHT = min(260, max(0, sliderHeight + sliderOffset))
+                                                sliderValueWhite = Int((newHEIGHT / 260) * 100)
+                                            }
                                         }
                                     })
                                     .onEnded({value in
-                                        sliderHeight = min(260, max(10, sliderHeight + sliderOffset))
+                                        if isSwitchOn {
+                                            sliderHeight = min(260, max(10, sliderHeight + sliderOffset))
+                                        }
                                         sliderOffset = 0
                                     })
                             )
@@ -247,6 +254,7 @@ struct ContentView: View {
                     .clipShape(.rect(cornerRadius: 20))
                     .padding(.trailing, 5)
                     .frame(height: 260)
+
                     //.overlay{
                       //  Text("\(sliderValueWhite)")
                         //    .font(.largeTitle)
