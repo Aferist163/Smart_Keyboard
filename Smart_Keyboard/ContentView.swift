@@ -155,9 +155,9 @@ struct ContentView: View {
                                             selectedColor = MemoryColor
                                             switchBlack(color: MemoryColor )
                                         } else {
-                                            switchBlack(color: "black")
                                             MemoryColor = selectedColor
                                             selectedColor = "black"
+                                            switchBlack(color: selectedColor)
                                         }
                                     }
                         }
